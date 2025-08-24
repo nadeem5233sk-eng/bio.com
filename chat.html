@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧬 Junior Biologist Quiz 🌱</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2d5a27 0%, #4a7c59 50%, #1e3a8a 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Floating microscopic cells animation */
+        .floating-cell {
+            position: fixed;
+            font-size: 20px;
+            opacity: 0.3;
+            animation: float 15s infinite linear;
+            z-index: 1;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+            }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #2d5a27;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #4a7c59;
+            font-size: 1.1rem;
+        }
+
+        .progress-section {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .plant-progress {
+            font-size: 4rem;
+            margin: 10px 0;
+            transition: all 0.5s ease;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e5f3e5;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #16a34a);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .difficulty-selector {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .difficulty-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .difficulty-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .difficulty-btn.easy {
+            background: #22c55e;
+            color: white;
+        }
+
+        .difficulty-btn.medium {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .difficulty-btn.hard {
+            background: #dc2626;
+            color: white;
+        }
+
+        .difficulty-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .difficulty-btn.active {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .quiz-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .quiz-container.active {
+            display: block;
+        }
+
+        .question {
+            margin-bottom: 25px;
+        }
+
+        .question h3 {
+            color: #2d5a27;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .options {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 15px 20px;
+            background: #f0f9f0;
+            border: 2px solid #e5f3e5;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .option:hover {
+            background: #e5f3e5;
+            border-color: #22c55e;
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            background: #22c55e;
+            color: white;
+            border-color: #16a34a;
+        }
+
+        .option.correct {
+            background: #22c55e;
+            color: white;
+            border-color: #16a34a;
+        }
+
+        .option.incorrect {
+            background: #dc2626;
+            color: white;
+            border-color: #b91c1c;
+        }
+
+        .quiz-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-success {
+            background: #22c55e;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .completion-screen {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            display: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .completion-screen.active {
+            display: block;
+        }
+
+        .badge {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            padding: 20px;
+            border-radius: 50%;
+            width: 150px;
+            height: 150px;
+            margin: 20px auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 8px 32px rgba(34, 197, 94, 0.3);
+        }
+
+        .floating-leaf {
+            position: absolute;
+            font-size: 30px;
+            animation: floatLeaf 3s ease-in-out infinite;
+        }
+
+        @keyframes floatLeaf {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+                opacity: 0.7;
+            }
+        }
+
+        .score-display {
+            font-size: 1.5rem;
+            color: #2d5a27;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .difficulty-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .quiz-controls {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating microscopic cells -->
+    <div class="floating-cell" style="left: 10%; animation-delay: 0s;">🔬</div>
+    <div class="floating-cell" style="left: 20%; animation-delay: 2s;">🦠</div>
+    <div class="floating-cell" style="left: 30%; animation-delay: 4s;">🧫</div>
+    <div class="floating-cell" style="left: 40%; animation-delay: 6s;">🔬</div>
+    <div class="floating-cell" style="left: 50%; animation-delay: 8s;">🦠</div>
+    <div class="floating-cell" style="left: 60%; animation-delay: 10s;">🧫</div>
+    <div class="floating-cell" style="left: 70%; animation-delay: 12s;">🔬</div>
+    <div class="floating-cell" style="left: 80%; animation-delay: 14s;">🦠</div>
+    <div class="floating-cell" style="left: 90%; animation-delay: 16s;">🧫</div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🧬 Junior Biologist Quiz 🌱</h1>
+            <p>Test your knowledge of biology and watch your plant grow! 🌿</p>
+        </div>
+
+        <div class="progress-section">
+            <h3>🌱 Your Progress Plant 🌱</h3>
+            <div class="plant-progress" id="plantProgress">🌱</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p id="progressText">0% Complete</p>
+        </div>
+
+        <div class="difficulty-selector" id="difficultySelector">
+            <h3>🎯 Choose Your Challenge Level</h3>
+            <p>Select the difficulty that matches your biology knowledge!</p>
+            <div class="difficulty-buttons">
+                <button class="difficulty-btn easy" onclick="selectDifficulty('easy')">
+                    🌱 Easy<br><small>Basic concepts</small>
+                </button>
+                <button class="difficulty-btn medium" onclick="selectDifficulty('medium')">
+                    🌿 Medium<br><small>Intermediate topics</small>
+                </button>
+                <button class="difficulty-btn hard" onclick="selectDifficulty('hard')">
+                    🌳 Hard<br><small>Advanced biology</small>
+                </button>
+            </div>
+        </div>
+
+        <div class="quiz-container" id="quizContainer">
+            <div class="question" id="questionContainer">
+                <!-- Questions will be loaded here -->
+            </div>
+            <div class="quiz-controls">
+                <div id="questionCounter">Question 1 of 10</div>
+                <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" disabled>
+                    Next Question ➡️
+                </button>
+            </div>
+        </div>
+
+        <div class="completion-screen" id="completionScreen">
+            <div class="floating-leaf" style="top: 10%; left: 10%; animation-delay: 0s;">🍃</div>
+            <div class="floating-leaf" style="top: 20%; right: 15%; animation-delay: 0.5s;">🍃</div>
+            <div class="floating-leaf" style="top: 30%; left: 20%; animation-delay: 1s;">🍃</div>
+            <div class="floating-leaf" style="bottom: 20%; right: 20%; animation-delay: 1.5s;">🍃</div>
+            <div class="floating-leaf" style="bottom: 30%; left: 15%; animation-delay: 2s;">🍃</div>
+            
+            <h2>🎉 Congratulations! 🎉</h2>
+            <div class="badge">
+                <div>🔬🧪🧬</div>
+                <div>Junior</div>
+                <div>Biologist</div>
+            </div>
+            <div class="score-display" id="finalScore"></div>
+            <p>You've completed the biology quiz and earned your Junior Biologist badge!</p>
+            <button class="btn btn-success" onclick="restartQuiz()" style="margin-top: 20px;">
+                🔄 Take Quiz Again
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let currentDifficulty = '';
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedAnswer = null;
+        let questions = [];
+
+        const questionSets = {
+            easy: [
+                {
+                    question: "🦠 What is the basic unit of life?",
+                    options: ["Cell", "Atom", "Molecule", "Tissue"],
+                    correct: 0,
+                    emoji: "🦠"
+                },
+                {
+                    question: "🌱 What do plants need to make their own food?",
+                    options: ["Sunlight and water", "Only soil", "Only air", "Only sunlight"],
+                    correct: 0,
+                    emoji: "🌱"
+                },
+                {
+                    question: "🐕 Which group do dogs belong to?",
+                    options: ["Mammals", "Birds", "Fish", "Reptiles"],
+                    correct: 0,
+                    emoji: "🐕"
+                },
+                {
+                    question: "🧬 What carries genetic information in living things?",
+                    options: ["DNA", "Water", "Air", "Food"],
+                    correct: 0,
+                    emoji: "🧬"
+                },
+                {
+                    question: "🌿 What process do plants use to make food from sunlight?",
+                    options: ["Photosynthesis", "Breathing", "Digestion", "Growth"],
+                    correct: 0,
+                    emoji: "🌿"
+                },
+                {
+                    question: "🐸 Which animals can live both in water and on land?",
+                    options: ["Amphibians", "Mammals", "Birds", "Insects"],
+                    correct: 0,
+                    emoji: "🐸"
+                },
+                {
+                    question: "🦴 What gives structure to your body?",
+                    options: ["Skeleton", "Skin", "Hair", "Blood"],
+                    correct: 0,
+                    emoji: "🦴"
+                },
+                {
+                    question: "🌳 What do we call animals that eat only plants?",
+                    options: ["Herbivores", "Carnivores", "Omnivores", "Decomposers"],
+                    correct: 0,
+                    emoji: "🌳"
+                },
+                {
+                    question: "🫁 What organ helps you breathe?",
+                    options: ["Lungs", "Heart", "Stomach", "Brain"],
+                    correct: 0,
+                    emoji: "🫁"
+                },
+                {
+                    question: "🦋 What is the process called when a caterpillar becomes a butterfly?",
+                    options: ["Metamorphosis", "Evolution", "Growth", "Reproduction"],
+                    correct: 0,
+                    emoji: "🦋"
+                }
+            ],
+            medium: [
+                {
+                    question: "🧫 What are the two main types of cells?",
+                    options: ["Prokaryotic and Eukaryotic", "Plant and Animal", "Large and Small", "Living and Dead"],
+                    correct: 0,
+                    emoji: "🧫"
+                },
+                {
+                    question: "🌱 What gas do plants release during photosynthesis?",
+                    options: ["Oxygen", "Carbon dioxide", "Nitrogen", "Hydrogen"],
+                    correct: 0,
+                    emoji: "🌱"
+                },
+                {
+                    question: "🧬 How many chromosomes do humans typically have?",
+                    options: ["46", "23", "48", "44"],
+                    correct: 0,
+                    emoji: "🧬"
+                },
+                {
+                    question: "🦠 What part of the cell controls its activities?",
+                    options: ["Nucleus", "Cell wall", "Cytoplasm", "Membrane"],
+                    correct: 0,
+                    emoji: "🦠"
+                },
+                {
+                    question: "🐍 What type of animal is a snake?",
+                    options: ["Reptile", "Amphibian", "Mammal", "Bird"],
+                    correct: 0,
+                    emoji: "🐍"
+                },
+                {
+                    question: "🌿 What is chlorophyll responsible for in plants?",
+                    options: ["Capturing sunlight", "Storing water", "Making roots", "Producing flowers"],
+                    correct: 0,
+                    emoji: "🌿"
+                },
+                {
+                    question: "🦈 What type of skeleton do sharks have?",
+                    options: ["Cartilage", "Bone", "Chitin", "No skeleton"],
+                    correct: 0,
+                    emoji: "🦈"
+                },
+                {
+                    question: "🧪 What is the powerhouse of the cell?",
+                    options: ["Mitochondria", "Nucleus", "Ribosome", "Vacuole"],
+                    correct: 0,
+                    emoji: "🧪"
+                },
+                {
+                    question: "🐧 How do penguins stay warm in cold climates?",
+                    options: ["Thick layer of fat and feathers", "Hibernation", "Migration", "Changing color"],
+                    correct: 0,
+                    emoji: "🐧"
+                },
+                {
+                    question: "🌺 What part of the flower produces pollen?",
+                    options: ["Stamen", "Pistil", "Petals", "Sepals"],
+                    correct: 0,
+                    emoji: "🌺"
+                }
+            ],
+            hard: [
+                {
+                    question: "🧬 What is the process by which DNA makes a copy of itself?",
+                    options: ["Replication", "Transcription", "Translation", "Mutation"],
+                    correct: 0,
+                    emoji: "🧬"
+                },
+                {
+                    question: "🦠 What organelle is responsible for protein synthesis?",
+                    options: ["Ribosomes", "Golgi apparatus", "Lysosomes", "Peroxisomes"],
+                    correct: 0,
+                    emoji: "🦠"
+                },
+                {
+                    question: "🌱 What is the Calvin cycle part of?",
+                    options: ["Photosynthesis", "Cellular respiration", "Fermentation", "Glycolysis"],
+                    correct: 0,
+                    emoji: "🌱"
+                },
+                {
+                    question: "🧫 What type of cell division produces gametes?",
+                    options: ["Meiosis", "Mitosis", "Binary fission", "Budding"],
+                    correct: 0,
+                    emoji: "🧫"
+                },
+                {
+                    question: "🐋 What is the largest group in the taxonomic hierarchy?",
+                    options: ["Kingdom", "Phylum", "Class", "Order"],
+                    correct: 0,
+                    emoji: "🐋"
+                },
+                {
+                    question: "🧪 What is the pH of pure water?",
+                    options: ["7", "0", "14", "1"],
+                    correct: 0,
+                    emoji: "🧪"
+                },
+                {
+                    question: "🦋 What type of symmetry do most animals exhibit?",
+                    options: ["Bilateral", "Radial", "Asymmetrical", "Spherical"],
+                    correct: 0,
+                    emoji: "🦋"
+                },
+                {
+                    question: "🌿 What is the waxy coating on plant leaves called?",
+                    options: ["Cuticle", "Epidermis", "Cortex", "Cambium"],
+                    correct: 0,
+                    emoji: "🌿"
+                },
+                {
+                    question: "🧬 What enzyme unwinds DNA during replication?",
+                    options: ["Helicase", "Polymerase", "Ligase", "Primase"],
+                    correct: 0,
+                    emoji: "🧬"
+                },
+                {
+                    question: "🦠 What is the function of the endoplasmic reticulum?",
+                    options: ["Protein and lipid synthesis", "Energy production", "Waste removal", "DNA storage"],
+                    correct: 0,
+                    emoji: "🦠"
+                }
+            ]
+        };
+
+        function selectDifficulty(difficulty) {
+            currentDifficulty = difficulty;
+            questions = [...questionSets[difficulty]];
+            
+            // Update button states
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Start quiz after a short delay
+            setTimeout(() => {
+                startQuiz();
+            }, 500);
+        }
+
+        function startQuiz() {
+            document.getElementById('difficultySelector').style.display = 'none';
+            document.getElementById('quizContainer').classList.add('active');
+            
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedAnswer = null;
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const question = questions[currentQuestionIndex];
+            const container = document.getElementById('questionContainer');
+            
+            container.innerHTML = `
+                <h3>${question.emoji} ${question.question}</h3>
+                <div class="options">
+                    ${question.options.map((option, index) => `
+                        <div class="option" onclick="selectOption(${index})">${option}</div>
+                    `).join('')}
+                </div>
+            `;
+            
+            document.getElementById('questionCounter').textContent = 
+                `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            
+            document.getElementById('nextBtn').disabled = true;
+            selectedAnswer = null;
+        }
+
+        function selectOption(index) {
+            // Remove previous selections
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Mark selected option
+            document.querySelectorAll('.option')[index].classList.add('selected');
+            selectedAnswer = index;
+            
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        function nextQuestion() {
+            const question = questions[currentQuestionIndex];
+            const options = document.querySelectorAll('.option');
+            
+            // Show correct/incorrect answers
+            options.forEach((option, index) => {
+                if (index === question.correct) {
+                    option.classList.add('correct');
+                } else if (index === selectedAnswer && index !== question.correct) {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            // Update score
+            if (selectedAnswer === question.correct) {
+                score++;
+            }
+            
+            // Update progress
+            updateProgress();
+            
+            setTimeout(() => {
+                currentQuestionIndex++;
+                
+                if (currentQuestionIndex < questions.length) {
+                    loadQuestion();
+                } else {
+                    showCompletion();
+                }
+            }, 1500);
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const plantProgress = document.getElementById('plantProgress');
+            
+            progressFill.style.width = progress + '%';
+            progressText.textContent = Math.round(progress) + '% Complete';
+            
+            // Update plant growth
+            if (progress <= 33) {
+                plantProgress.textContent = '🌱';
+            } else if (progress <= 66) {
+                plantProgress.textContent = '🌿';
+            } else {
+                plantProgress.textContent = '🌳';
+            }
+        }
+
+        function showCompletion() {
+            document.getElementById('quizContainer').classList.remove('active');
+            document.getElementById('completionScreen').classList.add('active');
+            
+            const percentage = Math.round((score / questions.length) * 100);
+            document.getElementById('finalScore').textContent = 
+                `Your Score: ${score}/${questions.length} (${percentage}%)`;
+        }
+
+        function restartQuiz() {
+            document.getElementById('completionScreen').classList.remove('active');
+            document.getElementById('difficultySelector').style.display = 'block';
+            
+            // Reset progress
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('progressText').textContent = '0% Complete';
+            document.getElementById('plantProgress').textContent = '🌱';
+            
+            // Reset difficulty selection
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            currentDifficulty = '';
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedAnswer = null;
+        }
+
+        // Add floating cells periodically
+        setInterval(() => {
+            const cells = ['🔬', '🦠', '🧫'];
+            const cell = document.createElement('div');
+            cell.className = 'floating-cell';
+            cell.textContent = cells[Math.floor(Math.random() * cells.length)];
+            cell.style.left = Math.random() * 100 + '%';
+            cell.style.animationDuration = (10 + Math.random() * 10) + 's';
+            document.body.appendChild(cell);
+            
+            // Remove after animation
+            setTimeout(() => {
+                if (cell.parentNode) {
+                    cell.parentNode.removeChild(cell);
+                }
+            }, 20000);
+        }, 3000);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'972c723b0347907a',t:'MTc1NTgwMzU5Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
